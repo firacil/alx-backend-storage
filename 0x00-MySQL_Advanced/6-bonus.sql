@@ -6,11 +6,13 @@
 --		project_name, a new or already exists projects - if no projects.name found in the table, you should create it
 --		score, the score value for the correction
 DROP PROCEDURE IF EXISTS AddBonus;
-DELIMITER $$;
-CREATE PROCEDURE AddBonus(IN user_id INT, IN project_name VARCHAR(255), IN score INT)
+DELIMITER $$
+CREATE PROCEDURE AddBonus(
+	IN user_id INT,
+	IN project_name VARCHAR(255),
+	IN score INT)
 BEGIN
 	DECLARE project_id INT;
-
 	IF (SELECT COUNT(*) FROM projects WHERE name=project_name) = 0
 	THEN
 		INSERT INTO projects (name) VALUES (project_name);
