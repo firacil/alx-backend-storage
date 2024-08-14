@@ -29,6 +29,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """Store the data in redis with a random key
 
@@ -45,10 +46,10 @@ class Cache:
     def get(self, key: str,
             fn: Optional[callable] = None) -> Union[str, bytes, int, float]:
         """convert data back to desired format"""
-        value = self._redis.get(key)
+        data = self._redis.get(key)
         if fn:
-            value = fn(value)
-        return value
+            data = fn(data)
+        return data
 
     def get_str(self, key: str) -> str:
         """automatically parametrize Cache.get with correct
