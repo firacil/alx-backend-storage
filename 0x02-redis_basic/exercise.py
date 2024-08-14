@@ -42,7 +42,7 @@ def replay(fn: Callable):
     fname = fn.__qualname__
     value = r.get(fname)
     try:
-        value = int(value.decode("utd-8"))
+        value = int(value.decode("utf-8"))
     except Exception:
         value = 0
 
