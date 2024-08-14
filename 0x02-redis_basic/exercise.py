@@ -11,11 +11,11 @@ from functools import wraps
 
 def count_calls(method: Callable) -> Callable:
     """returns a Callable"""
-    key = method.__qualname__
 
     @wraps(method)
     def wrapper(self, *args, **kwargs):
         """wrapper for decorated function"""
+        key = method.__qualname__
         self._redis.incr(key)
         return method(self, *args, **kwargs)
 
