@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+"""
+    In this tasks, we will implement a get_page function
+    (prototype: def get_page(url: str) -> str:)
+    The core of the function is very simple.
+    It uses the requests module to obtain the HTML content
+    of a particular URL and returns it.
+    Start in a new file named web.py and do not reuse
+    the code written in exercise.py
+
+    Inside get_page track how many times a particular URL
+    was accessed in the key "count:{url}" and cache the
+    result with an expiration time of 10 seconds.
+
+    Tip: Use http://slowwly.robertomurray.co.uk to
+    simulate a slow response and test your caching.
+
+    Bonus: implement this use case with decorators.
+"""
+
+import redis
+import requests
+from functools import wraps
+
+r = redis.Redis()
+
+
+def url_access_count(method):
+    """decorator for get_page"""
+    @wraps(method)
+    def wrapper(url):
+        """wrapper function"""
+        key = "cached:" + url
+        cached_val = r.get(key)
+        if cached_val:
+            return cached_val.decode("utf-8")
+
+        key_count = "count:" + url
+        html_cont = method(url)
+
+        r.incr(key_count)
+        r.set(key, html_cont, ex=10)
+        r.expire(key, 10)
+        return html_cont
+    return wrapper
+
+
+@url_access_count
+def get_page(url: str) -> str:
+    """ get html content of particular"""
+    results = requests.get(url)
+    return results.text
+
+
+if __name__ == "__main__":
+    get_page('http://slowwly.robertomurray.co.uk')
