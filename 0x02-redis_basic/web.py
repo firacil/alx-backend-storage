@@ -21,11 +21,12 @@
 import redis
 import requests
 from functools import wraps
+from typing import Callable
 
 r = redis.Redis()
 
 
-def url_access_count(method):
+def url_access_count(method: Callable) -> Callable:
     """decorator for get_page"""
     @wraps(method)
     def wrapper(url: str) -> str:
