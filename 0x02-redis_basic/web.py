@@ -28,20 +28,24 @@ r = redis.Redis()
 def url_access_count(method):
     """decorator for get_page"""
     @wraps(method)
-    def wrapper(url):
+    def wrapper(url: str) -> str:
         """wrapper function"""
-        key = "cached:" + url
-        cached_val = r.get(key)
+        # increment access count
+        count_key = f"count:{url}"
+        r.incr(count_key)
+
+        # checking if the page is cached
+        cached_val = r.get(url)
         if cached_val:
             return cached_val.decode("utf-8")
 
-        key_count = "count:" + url
-        html_cont = method(url)
+        # if not cached, fetch the page
+        page_content = method(url)
 
-        r.incr(key_count)
-        r.set(key, html_cont, ex=10)
-        r.expire(key, 10)
-        return html_cont
+        # cache the result with an expiration time of 10s
+        r.setex(url, 10, page_content)
+
+        return page_content
     return wrapper
 
 
